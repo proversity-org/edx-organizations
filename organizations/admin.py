@@ -1,8 +1,8 @@
 """ Django admin pages for organization models """
 from django.contrib import admin
 from django.utils.translation import ugettext_lazy as _
+from organizations.models import (Organization, OrganizationCourse, OrganizationUser)
 
-from organizations.models import (Organization, OrganizationCourse)
 
 
 @admin.register(Organization)
@@ -55,7 +55,10 @@ class OrganizationAdmin(admin.ModelAdmin):
 
 @admin.register(OrganizationCourse)
 class OrganizationCourseAdmin(admin.ModelAdmin):
-    """ Admin for the CourseOrganization model. """
+    """
+    Admin for the OrganizationCourse table.
+    """
+
     list_display = ('course_id', 'organization', 'active')
     ordering = ('course_id', 'organization__name',)
     search_fields = ('course_id', 'organization__name', 'organization__short_name',)
@@ -66,3 +69,29 @@ class OrganizationCourseAdmin(admin.ModelAdmin):
             kwargs['queryset'] = Organization.objects.filter(active=True).order_by('name')
 
         return super(OrganizationCourseAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
+
+
+class OrganizationUserAdmin(admin.ModelAdmin):
+    """
+    Admin for the OrganizationUser table.
+    """
+    list_display = ('user_id', 'organization', 'active', 'is_staff')
+
+    raw_id_fields = ('user_id',)
+    search_fields = ('user__username',)
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        """
+        list down the active organizations
+        """
+        if db_field.name == 'organization':
+            kwargs['queryset'] = Organization.objects.filter(active=True)
+
+        return super(OrganizationUserAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
+
+admin.site.register(Organization, OrganizationAdmin)
+admin.site.register(OrganizationCourse, OrganizationCourseAdmin)
+admin.site.register(OrganizationUser, OrganizationUserAdmin)
+

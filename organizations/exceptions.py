@@ -9,6 +9,10 @@ class InvalidCourseKeyException(ValidationError):
     """ CourseKey validation exception class """
 
 
+class InvalidUserIdException(ValidationError):
+    """ CourseKey validation exception class """
+
+
 class InvalidOrganizationException(ValidationError):
     """ Organization validation exception class """
 

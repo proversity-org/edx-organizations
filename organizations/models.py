@@ -7,6 +7,7 @@ offers one programmatic API -- api.py for direct Python integration.
 import re
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.contrib.auth.models import User
 from django.utils.translation import ugettext_lazy as _
 from model_utils.models import TimeStampedModel
 
@@ -57,3 +58,20 @@ class OrganizationCourse(TimeStampedModel):
         unique_together = (('course_id', 'organization'),)
         verbose_name = _('Link Course')
         verbose_name_plural = _('Link Courses')
+
+
+class OrganizationUser(TimeStampedModel):
+    """
+    An OrganizationUser represents the link between an Organization and a
+    User (via user id).
+    """
+    active = models.BooleanField(default=True)
+    user_id = models.OneToOneField(User, unique=True, db_index=True)
+    organization = models.ForeignKey(Organization, db_index=True)
+    is_staff = models.BooleanField(default=False)
+
+    class Meta:
+        """ Meta class for this Django model """
+        unique_together = (('user_id', 'organization'),)
+        verbose_name = _('Link User')
+        verbose_name_plural = _('Link Users')

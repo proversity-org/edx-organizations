@@ -19,6 +19,16 @@ def course_key_is_valid(course_key):
     return True
 
 
+def user_is_valid(user):
+    """
+    User object validation
+    """
+    if user is None:
+        return False
+
+    return True
+
+
 def organization_data_is_valid(organization_data):
     """
     Organization data validation

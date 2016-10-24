@@ -24,6 +24,16 @@ def _validate_course_key(course_key):
         )
 
 
+def _validate_user(user):
+    """ Validation helper """
+    if not validators.user_is_valid(user):
+        exceptions.raise_exception(
+            "User",
+            user,
+            exceptions.InvalidUserIdException
+        )
+
+
 def _validate_organization_data(organization_data):
     """ Validation helper """
     if not validators.organization_data_is_valid(organization_data):
@@ -129,3 +139,49 @@ def remove_course_references(course_key):
     """
     _validate_course_key(course_key)
     data.delete_course_references(course_key)
+
+
+def add_organization_user(organization_data, user):
+    """
+    Adds a organization-user link to the system
+    """
+    _validate_user(user)
+    _validate_organization_data(organization_data)
+    data.create_organization_user(
+        organization=organization_data,
+        user=user
+    )
+
+def get_organization_users(organization_data):
+    """
+    Retrieves the set of courses for a given organization
+    Returns an array of course identifiers
+    """
+    _validate_organization_data(organization_data)
+    return data.fetch_organization_users(organization=organization_data)
+
+
+def remove_organization_user(organization, user):
+    """
+    Removes the specfied user from the specified organization
+    """
+    _validate_organization_data(organization)
+    _validate_user(user)
+    return data.delete_organization_user(user=user, organization=organization)
+
+
+def get_user_organizations(user):
+    """
+    Retrieves the set of organizations for a given user
+    Returns an array of dicts containing organizations
+    """
+    _validate_user(user)
+    return data.fetch_user_organizations(user=user)
+
+
+def remove_user_references(user):
+    """
+    Removes user references from application state
+    """
+    _validate_user(user)
+    data.delete_user_references(user)
