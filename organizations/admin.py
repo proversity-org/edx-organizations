@@ -4,7 +4,7 @@
 django admin pages for organization models
 """
 from django.contrib import admin
-from organizations.models import (Organization, OrganizationCourse)
+from organizations.models import (Organization, OrganizationCourse, OrganizationUser)
 
 
 class OrganizationAdmin(admin.ModelAdmin):
@@ -47,7 +47,7 @@ class OrganizationAdmin(admin.ModelAdmin):
 
 class OrganizationCourseAdmin(admin.ModelAdmin):
     """
-    Admin for the CourseOrganization table.
+    Admin for the OrganizationCourse table.
     """
     list_display = ('course_id', 'organization', 'active')
 
@@ -61,5 +61,25 @@ class OrganizationCourseAdmin(admin.ModelAdmin):
         return super(OrganizationCourseAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 
+class OrganizationUserAdmin(admin.ModelAdmin):
+    """
+    Admin for the OrganizationUser table.
+    """
+    list_display = ('user_id', 'organization', 'active', 'is_staff')
+
+    raw_id_fields = ('user_id',)
+    search_fields = ('user__username',)
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        """
+        list down the active organizations
+        """
+        if db_field.name == 'organization':
+            kwargs['queryset'] = Organization.objects.filter(active=True)
+
+        return super(OrganizationUserAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
+
+
 admin.site.register(Organization, OrganizationAdmin)
 admin.site.register(OrganizationCourse, OrganizationCourseAdmin)
+admin.site.register(OrganizationUser, OrganizationUserAdmin)

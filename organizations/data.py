@@ -95,6 +95,30 @@ def _inactivate_organization_course_relationship(relationship):
     _inactivate_record(relationship)
 
 
+def _activate_organization_user_relationship(relationship):
+    """
+    Activates an inactive organization-user relationship
+    """
+    # If the relationship doesn't exist or the organization isn't active we'll want to raise an error
+    relationship = internal.OrganizationUser.objects.get(
+        id=relationship.id,
+        active=False,
+        organization__active=True
+    )
+    _activate_record(relationship)
+
+
+def _inactivate_organization_user_relationship(relationship):
+    """
+    Inactivates an active organization-user relationship
+    """
+    relationship = internal.OrganizationUser.objects.get(
+        id=relationship.id,
+        active=True
+    )
+    _inactivate_record(relationship)
+
+
 # PUBLIC METHODS
 def create_organization(organization):
     """
@@ -261,5 +285,79 @@ def delete_course_references(course_key):
     """
     [_inactivate_record(record) for record in internal.OrganizationCourse.objects.filter(
         course_id=unicode(course_key),
+        active=True
+    )]
+
+
+def create_organization_user(organization, user):
+    """
+    Inserts a new organization-user relationship into app/local state
+    No response currently defined for this operation
+    """
+    organization_obj = serializers.deserialize_organization(organization)
+    try:
+        relationship = internal.OrganizationUser.objects.get(
+            organization=organization_obj,
+            user_id=user
+        )
+        # If the relationship exists, but was inactivated, we can simply turn it back on
+        if not relationship.active:
+            _activate_organization_user_relationship(relationship)
+    except internal.OrganizationUser.DoesNotExist:
+        relationship = internal.OrganizationUser.objects.create(
+            organization=organization_obj,
+            user_id=user,
+            is_staff=user.is_staff,
+            active=True
+        )
+
+
+def delete_organization_user(organization, user):
+    """
+    Removes an existing organization-user relationship from app/local state
+    No response currently defined for this operation
+    """
+    try:
+        relationship = internal.OrganizationUser.objects.get(
+            organization=organization['id'],
+            user_id=user,
+            active=True,
+        )
+        _inactivate_organization_user_relationship(relationship)
+    except internal.OrganizationUser.DoesNotExist:
+        # If we're being asked to delete an organization-course link
+        # that does not exist in the database then our work is done
+        pass
+
+
+def fetch_organization_users(organization):
+    """
+    Retrieves the set of users currently linked to the specified organization
+    """
+    organization_obj = serializers.deserialize_organization(organization)
+    queryset = internal.OrganizationUser.objects.filter(
+        organization=organization_obj,
+        active=True
+    ).select_related('organization')
+    return [serializers.serialize_organization_with_user(organization) for organization in queryset]
+
+
+def fetch_user_organizations(user):
+    """
+    Retrieves the organizations linked to the specified user
+    """
+    queryset = internal.OrganizationUser.objects.filter(
+        user_id=user,
+        active=True
+    ).select_related('organization')
+    return [serializers.serialize_organization_with_user(organization) for organization in queryset]
+
+
+def delete_user_references(user):
+    """
+    Inactivates references to user ids within this app
+    """
+    [_inactivate_record(record) for record in internal.OrganizationUser.objects.filter(
+        user_id=user,
         active=True
     )]
