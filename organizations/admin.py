@@ -7,7 +7,14 @@ from organizations.models import (Organization, OrganizationCourse, Organization
 
 @admin.register(Organization)
 class OrganizationAdmin(admin.ModelAdmin):
-    """ Admin for the Organization model. """
+
+    """
+    Admin for the Organization table.
+    soft-delete on the organizations
+    """
+    list_display = ('name', 'short_name', 'logo', 'created', 'active')
+    readonly_fields = ('created',)
+    ordering = ['created']
     actions = ['activate_selected', 'deactivate_selected']
     list_display = ('name', 'short_name', 'logo', 'active',)
     list_filter = ('active',)
