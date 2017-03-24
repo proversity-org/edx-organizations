@@ -28,7 +28,7 @@ class Organization(TimeStampedModel):
         null=True, blank=True, max_length=255
     )
     active = models.BooleanField(default=True)
-    apiKey = models.CharField(max_length=100)
+    apiKey = models.CharField(max_length=100, blank=True, None=True)
 
     def __unicode__(self):
         return u"{}".format(self.name)
