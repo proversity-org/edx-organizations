@@ -23,7 +23,8 @@ def serialize_organization(organization):
         'name': organization.name,
         'short_name': organization.short_name,
         'description': organization.description,
-        'logo': organization.logo
+        'logo': organization.logo,
+        'api_key': organization.api_key
     }
 
 
@@ -72,5 +73,6 @@ def deserialize_organization(organization_dict):
         name=organization_dict.get('name', ''),
         short_name=organization_dict.get('short_name', ''),
         description=organization_dict.get('description', ''),
-        logo=organization_dict.get('logo', '')
+        logo=organization_dict.get('logo', ''),
+        api_key=organization_dict.get('api_key':, '')
     )
