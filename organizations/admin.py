@@ -4,7 +4,6 @@ from django.utils.translation import ugettext_lazy as _
 from organizations.models import (Organization, OrganizationCourse, OrganizationUser)
 
 
-
 @admin.register(Organization)
 class OrganizationAdmin(admin.ModelAdmin):
 
@@ -78,7 +77,7 @@ class OrganizationCourseAdmin(admin.ModelAdmin):
         return super(OrganizationCourseAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 
-
+@admin.register(OrganizationUser)
 class OrganizationUserAdmin(admin.ModelAdmin):
     """
     Admin for the OrganizationUser table.
@@ -96,9 +95,4 @@ class OrganizationUserAdmin(admin.ModelAdmin):
             kwargs['queryset'] = Organization.objects.filter(active=True)
 
         return super(OrganizationUserAdmin, self).formfield_for_foreignkey(db_field, request, **kwargs)
-
-
-admin.site.register(Organization, OrganizationAdmin)
-admin.site.register(OrganizationCourse, OrganizationCourseAdmin)
-admin.site.register(OrganizationUser, OrganizationUserAdmin)
 
